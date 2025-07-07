@@ -64,24 +64,27 @@ def take_index():
     cfgservice.app_logger.info("Take Request, header:\n" + str(request.headers) + ", payload:\n" + str(request.form.to_dict()))
 
     api_key = request.headers.get("X-Api-Key")
-    print("API_Key recieved: ", api_key, flush=True)
-    print("API_Key from env: ", current_app.config['API_key'], flush=True)
+
     if api_key != current_app.config['API_key']:
-        return jsonify({"error": str(e)}), 401
+        cfgservice.app_logger.error("Incorrect API key")
+        return jsonify({"error": "Incorrect API key"}), 401
 
     try:
         doctype = validate_doctype(request.form["doctype"])
-    except ValueError:
+    except ValueError as e:
+        cfgservice.app_logger.error(str(e))
         return jsonify({"error": str(e)}), 400
 
     try:
         country = validate_country(request.form["country"])
-    except ValueError:
+    except ValueError as e:
+        cfgservice.app_logger.error(str(e))
         return jsonify({"error": str(e)}), 400
 
     try:
         expiry_date = validate_expiry_date(request.form["expiry_date"])
     except ValueError as e:
+        cfgservice.app_logger.error(str(e))
         return jsonify({"error": str(e)}), 400
         
     if country not in status_list:
@@ -149,12 +152,14 @@ def set_index():
     
     try:
         index = int(index)
-    except ValueError:
+    except ValueError as e:
+        cfgservice.app_logger.error(str(e))
         return jsonify({"error": "'id' or 'idx' unkown"}), 400
 
     try:
         status = int(status)
-    except ValueError:
+    except ValueError as e:
+        cfgservice.app_logger.error(str(e))
         return jsonify({"error": " status unkown"}), 400
 
     if status != 1:
@@ -171,12 +176,14 @@ def set_index():
 
     try:
         doctype = validate_doctype(path_parts[3])
-    except ValueError:
+    except ValueError as e:
+        cfgservice.app_logger.error(str(e))
         return jsonify({"error": str(e)}), 400
 
     try:
         country = validate_country(path_parts[2])
-    except ValueError:
+    except ValueError as e:
+        cfgservice.app_logger.error(str(e))
         return jsonify({"error": str(e)}), 400
     
     id = path_parts[4]
